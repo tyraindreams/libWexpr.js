@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <title>Convert between JSON and Wexpr</title>
+        <meta name="description" content="An interactive getting started guide for Brackets.">
+        <style>
+            .btn {
+                display: inline-block;
+                background-color: #42586E;
+                margin-top: 6px;
+                margin-bottom: 6px;
+                padding-top: 6px;
+                padding-bottom: 6px;
+                padding-left: 6px;
+                padding-right: 6px;
+                color: white;
+                font-size: 16px;
+                border: none;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+            textarea {tab-size: 3;}
+            pre {tab-size: 1;}
+        </style>
+    </head>
+    <body>
+        <textarea id="input" rows="20" cols="100" style="display:block" placeholder="Paste markup here..."></textarea>
+        <div class="btn" onclick="JSONToWexpr()">
+            JSON to Wexpr
+        </div>
+        <div class="btn" onclick="WexprToJSON()">
+            Wexpr to JSON
+        </div>
+        <div class="btn" onclick="document.getElementById('wexprPretty').checked = !document.getElementById('wexprPretty').checked;">
+            <input type="checkbox" id="wexprPretty" value="bool">Pretty Print Wexpr
+        </div>
+        <textarea id="output" rows="20" cols="100" style="display:block" placeholder="Results will show up here..."></textarea>
+        <pre><code id="errormsg" style="display:block;color:red"></code></pre>
+        <pre><code id="warnmsg" style="display:block;color:purple"></code></pre>
+    </body>
+    <script src="libWexpr.js"></script>
+    <script>
+
+        var entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '/': '&#x2F;',
+            '`': '&#x60;',
+            '=': '&#x3D;',
+            '\n': '<br />'
+        };
+
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+                return entityMap[s];
+            });
+        }
+
+        function JSONToWexpr() {
+
+            document.getElementById("output").value = "";
+            document.getElementById("errormsg").innerHTML = "";
+            document.getElementById("warnmsg").innerHTML = "";
+
+            var json = document.getElementById("input").value;
+
+            try {
+                var obj = JSON.parse(json);
+            }
+            catch(error) {
+                document.getElementById("errormsg").innerHTML = error;
+                return;
+            }
+
+            var wexpr = libWexpr.encode(obj, document.getElementById('wexprPretty').checked);
+            if (wexpr[1] != null) {
+                document.getElementById("errormsg").innerHTML = escapeHtml(wexpr[1]);
+                return;
+            }
+
+            for (i=0; i<libWexpr.warnings.length; i++) {    
+                document.getElementById("warnmsg").innerHTML = document.getElementById("warnmsg").innerHTML + libWexpr.warnings[i] + "\n";
+            }
+
+            document.getElementById("output").value = wexpr[0];
+
+        }
+
+        function WexprToJSON() {
+
+            document.getElementById("output").value = "";
+            document.getElementById("errormsg").innerHTML = "";
+            document.getElementById("warnmsg").innerHTML = "";
+
+            var wexpr = document.getElementById("input").value;
+
+            var obj =  libWexpr.decode(wexpr, true);
+
+            if (obj[1] != null) {
+                document.getElementById("errormsg").innerHTML = escapeHtml(obj[1]);
+                return;
+            }
+
+            try {
+                var json = JSON.stringify(obj[0]);
+            }
+            catch(error) {
+                document.getElementById("errormsg").innerHTML = error;
+                return;
+            }
+
+            for (i=0; i<libWexpr.warnings.length; i++) {    
+                document.getElementById("warnmsg").innerHTML = document.getElementById("warnmsg").innerHTML + libWexpr.warnings[i] + "\n";
+            }
+
+            document.getElementById("output").value = json;
+
+        }
+        
+    </script>
+</html>
