@@ -290,7 +290,9 @@ libWexpr = {
         for (var key in value) {
             var vchunk = this.encodeValue(indent, path + "." + key, value[key], binary);
             if (vchunk != null) {
-                chunk += indentString +String(key) + " " + vchunk;
+                // cheat and use encodeValue for keys too
+                keyStr = this.encodeValue(0, "", key, binary)
+                chunk += indentString + keyStr + " " + vchunk;
             }
         }
 
@@ -323,7 +325,7 @@ libWexpr = {
                     } else {
                         return "<" + window.btoa(str) + ">";
                     }
-                }else if (str != "nil" && str != "null" && str != "true" && str != "false" && !str.match(/[^<>"*#@\(\);\[\]\r\n \t]+/) == null) {
+                }else if (str != "nil" && str != "null" && str != "true" && str != "false" && (str.match(/[^<>"*#@\(\);\[\]\r\n \t]+/) == str)) {
                     return str;
                 } else {
                     str = str.replace(/\\/g, "\\\\");
