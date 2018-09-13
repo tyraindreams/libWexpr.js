@@ -290,7 +290,9 @@ libWexpr = {
         for (var key in value) {
             var vchunk = this.encodeValue(indent, path + "." + key, value[key], binary);
             if (vchunk != null) {
-                chunk += indentString +String(key) + " " + vchunk;
+                // cheat and use encodeValue for keys too
+                keyStr = this.encodeValue(0, "", key, binary)
+                chunk += indentString + keyStr + " " + vchunk;
             }
         }
 
