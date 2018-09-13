@@ -319,14 +319,13 @@ libWexpr = {
                 return String(value);
             case "string":
                 str = String(value);
-                isBarewordCompatible = (str.match(/[^<>"*#@\(\);\[\]\r\n \t]+/) == str); // must match the entire string
                 if ( binary[path] != undefined ) {
                     if (Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]') {
                         return "<" + Buffer(str).toString('base64') + ">";
                     } else {
                         return "<" + window.btoa(str) + ">";
                     }
-                }else if (str != "nil" && str != "null" && str != "true" && str != "false" && isBarewordCompatible) {
+                }else if (str != "nil" && str != "null" && str != "true" && str != "false" && (str.match(/[^<>"*#@\(\);\[\]\r\n \t]+/) == str)) {
                     return str;
                 } else {
                     str = str.replace(/\\/g, "\\\\");
