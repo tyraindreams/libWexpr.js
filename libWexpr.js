@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 **/
 libWexpr = {
-    version: "0.1.0",
+    version: "1.0.0",
     WexprSpec: "0.1",
 
     warnings: [],
