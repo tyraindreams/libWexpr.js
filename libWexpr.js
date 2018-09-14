@@ -290,9 +290,12 @@ libWexpr = {
         for (var key in value) {
             var vchunk = this.encodeValue(indent, path + "." + key, value[key], binary);
             if (vchunk != null) {
-                // cheat and use encodeValue for keys too
-                keyStr = this.encodeValue(0, "", key, binary)
-                chunk += indentString + keyStr + " " + vchunk;
+                keyStr = this.encodeValue(0, "", key, {})
+                if (keyStr != null) {
+                    chunk += indentString + keyStr + " " + vchunk;
+                } else {
+                    this.warnings.push("Warning: Cannot insert invalid key at " + path);
+                }
             }
         }
 
