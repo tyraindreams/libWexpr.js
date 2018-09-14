@@ -34,7 +34,7 @@
             Wexpr to JSON
         </div>
         <div class="btn" onclick="document.getElementById('wexprPretty').checked = !document.getElementById('wexprPretty').checked;">
-            <input type="checkbox" id="wexprPretty" value="bool">Pretty Print Wexpr
+            <input type="checkbox" id="wexprPretty" value="bool">Pretty Print Result
         </div>
         <textarea id="output" rows="20" cols="100" style="display:block" placeholder="Results will show up here..."></textarea>
         <pre><code id="errormsg" style="display:block;color:red"></code></pre>
@@ -107,7 +107,7 @@
             }
 
             try {
-                var json = JSON.stringify(obj[0]);
+                var json = JSON.stringify(obj[0], null, document.getElementById('wexprPretty').checked ? "\t" : 0);
             }
             catch(error) {
                 document.getElementById("errormsg").innerHTML = error;
