@@ -21,12 +21,16 @@
                 cursor: pointer;
                 border-radius: 4px;
             }
-            textarea {tab-size: 3;}
+            textarea {tab-size: 3;font-family: monospace;}
             pre {tab-size: 1;}
         </style>
     </head>
     <body>
+        <h2>Input</h2>
         <textarea id="input" rows="20" cols="100" style="display:block" placeholder="Paste markup here..."></textarea>
+        <div class="btn" onclick="beautifyWexpr()">
+            Beautify Wexpr
+        </div>
         <div class="btn" onclick="JSONToWexpr()">
             JSON to Wexpr
         </div>
@@ -36,6 +40,7 @@
         <div class="btn" onclick="document.getElementById('wexprPretty').checked = !document.getElementById('wexprPretty').checked;">
             <input type="checkbox" id="wexprPretty" value="bool">Pretty Print Result
         </div>
+        <h2>Output</h2>
         <textarea id="output" rows="20" cols="100" style="display:block" placeholder="Results will show up here..."></textarea>
         <pre><code id="errormsg" style="display:block;color:red"></code></pre>
         <pre><code id="warnmsg" style="display:block;color:purple"></code></pre>
@@ -121,6 +126,121 @@
             document.getElementById("output").value = json;
 
         }
-        
+
+        function beautifyWexpr() {
+            var wexpr = "";
+
+            document.getElementById("output").value = "";
+            document.getElementById("errormsg").innerHTML = "";
+            document.getElementById("warnmsg").innerHTML = "";
+
+            var chunk = document.getElementById("input").value;
+
+            var obj =  libWexpr.decode(chunk, true);
+
+            if (obj[1] != null) {
+                document.getElementById("errormsg").innerHTML = escapeHtml(obj[1]);
+                return;
+            }
+
+            libWexpr.chunk = document.getElementById("input").value;
+            libWexpr.regex.lastIndex = 0;
+            libWexpr.references = {};
+
+            wexpr = beautifyTokens(0, false, false);
+
+            document.getElementById("output").value = wexpr;
+
+
+        }
+
+        function beautifyTokens(indentLevel, isMap, isKey) {
+            var wexpr = "";
+            var token = null;
+
+            while(token = nextToken()) {
+                if (token == null) {
+                    return;
+                }
+
+                indent = new Array(indentLevel+1).join("\t");
+
+                switch (token.type) {
+                    case 0:
+                        break;
+                    case 1:
+                        wexpr += indent + token.token + "\n";
+                        break;
+                    case 2:
+                        wexpr += indent + token.token + "\n";
+                        break;
+                    case 10:
+                    case 9:
+                        if (isMap) {
+                            if (isKey) {
+                                wexpr += (new Array(indentLevel+1).join("\t")) + token.token;
+                            } else {
+                                wexpr += " " + token.token + "\n";
+                            }
+                            isKey = !isKey;
+                        } else {
+                            wexpr += indent + token.token + "\n";
+                        }
+                        wexpr += beautifyTokens(indentLevel + 1, !!(token.type-9), true);
+                        break;
+                    case 11:
+                        isMap = false;
+                        indentLevel -= 1;
+                        indent = new Array(indentLevel+1).join("\t");
+                        wexpr += indent + token.token + "\n";
+                        return wexpr;
+                        break;
+                    default:
+                        if (isMap) {
+                            if (token.type == 7) {
+                                wexpr += " " + token.token;
+                            } else {
+                                if (isKey) {
+                                    wexpr += (new Array(indentLevel+1).join("\t")) + token.token;
+                                } else {
+                                    wexpr += " " + token.token + "\n";
+                                }
+                                isKey = !isKey;
+                            }
+                        } else {
+                            if (token.type == 7) {
+                                wexpr += token.token;
+                            } else {
+                                wexpr += indent + token.token + "\n";
+                            }
+                        }
+                }
+            }
+
+            return wexpr
+
+        }
+
+        function nextToken() {
+            while (result = libWexpr.regex.exec(libWexpr.chunk)) {
+                var token = null;
+
+                for (var c = 0; c < libWexpr.tokens.length; c++){
+                    if (result[c+1] != undefined) {
+                        if (c == libWexpr.tokens.length-1) {
+                            break
+                        } else {
+                            var token = {
+                                token: result[0],
+                                type: c,
+                                index: result.index
+                            }
+                            return token
+                        }
+                    }
+                }
+            }
+        }
+
     </script>
 </html>

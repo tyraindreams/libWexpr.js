@@ -384,12 +384,12 @@ libWexpr = {
 
     nextToken: function(expectEnd) {
         expectEnd = expectEnd || false
-        while (result = libWexpr.regex.exec(this.chunk)) {
-            for (var c = 0; c < libWexpr.tokens.length; c++){
+        while (result = this.regex.exec(this.chunk)) {
+            for (var c = 0; c < this.tokens.length; c++){
                 if (result[c+1] != undefined) {
-                    if (c == libWexpr.tokens.length-1) {
+                    if (c == this.tokens.length-1) {
                         this.throw("Syntax Error: Unknown token.", result.index)
-                    } else if (!libWexpr.tokens[c].syntax) {
+                    } else if (!this.tokens[c].syntax) {
                         break
                     } else {
                         this.token = {
