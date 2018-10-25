@@ -359,10 +359,13 @@ libWexpr = {
 
     },
 
-    decode: function(chunk) {
+    decode: function(chunk, references) {
         this.regex.lastIndex = 0;
         this.chunk = chunk;
-        this.references = {};
+        this.references = references || {};
+        if (typeof this.references != "object") {
+            return [undefined, "Error: Expected references as an object but instead found " + typeof this.references];
+        }
 
         try {
             var token = this.nextToken();

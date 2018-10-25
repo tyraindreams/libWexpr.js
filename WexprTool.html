@@ -136,7 +136,7 @@
 
             var chunk = document.getElementById("input").value;
 
-            var obj =  libWexpr.decode(chunk, true);
+            var obj =  libWexpr.decode(chunk);
 
             if (obj[1] != null) {
                 document.getElementById("errormsg").innerHTML = escapeHtml(obj[1]);
