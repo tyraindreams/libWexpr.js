@@ -104,7 +104,7 @@
 
             var wexpr = document.getElementById("input").value;
 
-            var obj =  libWexpr.decode(wexpr, true);
+            var obj =  libWexpr.decode(wexpr);
 
             if (obj[1] != null) {
                 document.getElementById("errormsg").innerHTML = escapeHtml(obj[1]);
